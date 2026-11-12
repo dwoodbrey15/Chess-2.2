@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chess II</title>
+<meta name="description" content="A 10 × 10 chess variant with Archers, Wizards, Catapults, Jokers and a wild Dragon.">
+<meta name="theme-color" content="#eeedf5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0f1c" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chess II">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css?v=25">
+</head>
+<body>
+<svg class="defs" aria-hidden="true"><defs>
+  <linearGradient id="pw-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f6f3ff"/><stop offset="1" stop-color="#ddd7f2"/></linearGradient>
+  <linearGradient id="pb-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a446f"/><stop offset=".6" stop-color="#2f2b4b"/><stop offset="1" stop-color="#221f38"/></linearGradient>
+  <linearGradient id="pn-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a7dff"/><stop offset="1" stop-color="#b98aff"/></linearGradient>
+</defs></svg>
+<div class="sky" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
+<main class="app">
+  <section class="stage">
+    <div class="evalcol"><div class="evalbar" id="evalbar"><div class="evalfill" id="evalfill"></div></div></div>
+    <div class="board-wrap" id="boardWrap">
+      <div class="board" id="board"></div>
+      <div class="dzone" id="dzone" title="The wild Dragon's ground"></div>
+      <div class="fx" id="fx"><svg id="fxSvg"></svg></div>
+      <div class="popover" id="popover" hidden></div>
+      <div class="overlay" id="overlay" hidden>
+        <div class="card">
+          <div class="card-title" id="ovTitle"></div>
+          <div class="card-sub" id="ovSub"></div>
+          <div class="row"><button id="ovClose" class="ghost">Review</button><button id="ovNew" class="primary">New game</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <header class="top">
+      <div class="brand">Chess <span>II</span></div>
+    </header>
+
+    <section class="pane" id="pane-play">
+      <div class="status">
+        <span class="turn" id="turnDot"></span>
+        <div class="status-text"><div class="main" id="statusMain">Loading</div><div class="sub" id="statusSub"></div></div>
+        <div class="evaltext" id="evalLabel"></div>
+      </div>
+
+      <div class="piece-info" id="pieceInfo" hidden></div>
+
+      <div class="action-card" id="actionCard" hidden>
+        <div class="ac-head"><span class="ac-dot"></span><span id="acTitle">Catapult</span><span class="ac-count" id="acCount"></span></div>
+        <div class="ac-text" id="acText"></div>
+        <div class="ac-warn" id="acWarn"></div>
+        <div class="row">
+          <button id="acNext" class="ghost">Next area</button>
+          <button id="acCancel" class="ghost">Cancel</button>
+          <button id="acLaunch" class="primary blast">Launch</button>
+        </div>
+      </div>
+
+      <div class="field"><div class="label">Opponent</div>
+        <div class="seg" id="modeSeg"><button data-v="engine">Engine</button><button data-v="two">Friend</button><button data-v="watch">Watch</button></div></div>
+      <div class="field" id="colorGroup"><div class="label">You play</div>
+        <div class="seg" id="colorSeg"><button data-v="1">White</button><button data-v="-1">Black</button></div></div>
+      <div class="field"><div class="label">Strength</div>
+        <div class="seg" id="strengthSeg"><button data-v="300">Easy</button><button data-v="1000">Medium</button><button data-v="3000">Hard</button><button data-v="8000">Max</button></div></div>
+
+      <div class="moves" id="moves"></div>
+      <div class="engine" id="engineInfo"></div>
+      <div class="actions">
+        <button id="newBtn" class="primary">New game</button>
+        <button id="undoBtn" class="ghost">Undo</button>
+        <button id="hintBtn" class="ghost">Hint</button>
+        <button id="flipBtn" class="ghost" aria-label="Flip board">Flip</button>
+      </div>
+      <div class="foot"><span id="layoutInfo"></span><button id="rulesBtn" class="link">Rules</button></div>
+    </section>
+  </aside>
+</main>
+
+<dialog id="promoDlg" class="dlg">
+  <div class="dlg-title" id="promoTitle">Promote</div>
+  <div class="dlg-sub" id="promoSub"></div>
+  <div class="promo-grid" id="promoGrid"></div>
+</dialog>
+
+<dialog id="rulesDlg" class="dlg rules">
+  <div class="dlg-title">How to play</div>
+  <div class="rules-body">
+    <h3>Take the king</h3>
+    <p>Remove the enemy king by any means to win at once. There is no check, checkmate or stalemate, so you may leave your king exposed. Threefold repetition, or 50 moves without a capture, is a draw. No action of yours may ever hit your own king.</p>
+    <h3>Board and armies</h3>
+    <p>10 × 10. The queen starts on e and the king on f. Rooks stand in both corners, so you can castle either way. The six squares between them and the royals (b, c, d, g, h, i) hold a knight, a bishop, an Archer, a Wizard, a Catapult and a Joker, shuffled each game (720 orders). Black mirrors White. Pawns promote to a queen, rook, knight, bishop, Archer, Wizard, Catapult or Joker.</p>
+    <h3>The wild Dragon</h3>
+    <p>A Dragon starts on f6, belonging to nobody, and never leaves the middle 6 × 6 of the board (c3 to h8, the tinted area). It also only ever touches squares inside that area. Nobody moves it: after every move, by either player, it takes its own turn:</p>
+    <p>1. If a king is within 2 squares, it takes it, whatever the risk. That king's player loses. If both kings are in reach, it takes the king of the player who just moved.<br>
+    2. Otherwise it is an animal that wants to live and eat. It never ends its turn where the player who moves next could capture it, nor where their Wizard could convert it (from beside it, or by stepping first), unless every choice is that dangerous; then it would rather be converted than captured. So any piece that guards a square keeps the Dragon off it, and a Wizard nearby guards everything around it.<br>
+    Among the safe choices it eats the most it can, by landing on a piece within 2 squares, or by breathing fire along one of its 8 lines, burning everything on the next 2 squares at once (never outside its 6 × 6).<br>
+    3. With nothing worth taking, it hunts: it flies to a safe square with as much as possible in its reach for its next turn, forking pieces where it can. It only stays put when every other square is worse.</p>
+    <p>Anyone may capture it like an enemy piece, and then it's gone for good. A Wizard may convert it: it then wears that player's colour and never lands on their pieces or burns their king, but it still acts on its own. A turned Dragon is twisted to its master's purpose: it will sacrifice itself for a rook or more. Its fire can still catch its owner's pieces on the same line, so it only breathes when its owner comes out ahead: your pawn for their rook, yes; your pawn for their pawn, no. Neither player can move it by hand, and the other player's Wizard can turn it back. A Joker standing inside its ground can swap places with it (the Dragon must stay in its 6 × 6).</p>
+    <h3>Archer</h3>
+    <p>Steps one square to an empty square (it never captures by moving), or shoots the first piece in one of eight lines up to 3 squares away, adjacent ones included, if it's an enemy.</p>
+    <h3>Wizard</h3>
+    <p>Steps one square but never captures. Converts an adjacent enemy to your side (the Dragon too). It can convert instead of moving, or step first and then convert an enemy next to where it landed, in the same turn. Kings can't be converted.</p>
+    <h3>Catapult</h3>
+    <p>Steps one square orthogonally to an empty square, or bombards a 2 × 2 block inside its 7 × 7 range, outside the 3 × 3 blind spot. Blocks may hang off the edge. Everything hit is removed, your own pieces included. Tap a marked square to see the best 2 × 2 area there, then tap inside it again (or press Launch) to fire; Next area shows the others.</p>
+    <h3>Joker</h3>
+    <p>Steps one square, or swaps places with any piece within the 5 × 5 box. A pawn swapped onto its last rank promotes at once, chosen by its owner.</p>
+    <h3>Familiar pieces</h3>
+    <p>Pawns, knights, bishops, rooks, the queen and king move as usual, with en passant. To castle, select the king, then the rook. Castling ends with king b / rook c, or king i / rook h.</p>
+  </div>
+  <div class="row end"><button id="rulesClose" class="primary">Done</button></div>
+</dialog>
+
+<script type="module" src="app.js?v=25"></script>
+</body>
+</html>
